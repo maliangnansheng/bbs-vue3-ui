@@ -14,7 +14,7 @@
 > [加载太慢or图片加载不出来 **点我**](https://bbs.nanshengbbs.top/detail/172)
 
 ## 我要学习Vue2版本
-[Vue版本（bbs-vue-ui）](https://github.com/maliangnansheng/bbs-vue-ui)
+[Vue2版本（bbs-vue-ui）](https://github.com/maliangnansheng/bbs-vue-ui)
 
 ## 仓库说明
 
