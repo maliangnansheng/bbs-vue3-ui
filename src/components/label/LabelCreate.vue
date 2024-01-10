@@ -7,7 +7,7 @@
                :placeholder="$t('common.pleaseLabel')"/>
     </a-form-item>
     <!-- 文章封面 -->
-    <a-form-item :label="$t('common.labelLogo')">
+    <a-form-item :label="$t('common.labelLogo')" style="height:120px">
       <ImageUpload
           ref="child"
           :labelLogo="labelLogo"
@@ -106,7 +106,6 @@
               this.refresh();
             })
             .catch(err => {
-              console.log("错误",err)
               this.$message.error(err.desc);
             });
       },
