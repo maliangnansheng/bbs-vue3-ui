@@ -2,7 +2,7 @@
   <div class="clearfix">
     <a-upload
         list-type="picture-card"
-        :file-list="fileList"
+        v-model:file-list="fileList"
         :customRequest="uploadResourceLogo"
         :remove="remove"
         @preview="handlePreview"

@@ -22,7 +22,7 @@
                :placeholder="$t('common.pleaseLink')"/>
     </a-form-item>
     <!-- 资源封面 -->
-    <a-form-item :label="$t('common.resourceLogo')">
+    <a-form-item :label="$t('common.resourceLogo')" style="height:120px">
       <ImageUpload
           ref="child"
           :resourceLogo="resourceLogo"
