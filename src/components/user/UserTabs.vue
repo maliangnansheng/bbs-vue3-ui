@@ -6,7 +6,7 @@
           <span slot="tab">
             <i class="iconfont icon-dynamic"></i>
             {{ $t("common.dynamic") }}
-          </span>
+          </span>`
         </template>
         <!-- 动态列表 -->
         <Dynamic

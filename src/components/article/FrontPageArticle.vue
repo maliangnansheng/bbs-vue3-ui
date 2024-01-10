@@ -31,7 +31,7 @@
                       <span v-text="item.articleCountDTO.commentCount"></span>
                   </span>
                   <span
-                      v-if="(($store.state.isManage && isAdminAudit) || $store.state.userId === item.createUser) && type==='ellipsis'"
+                      v-if="(($store.state.isManage && isAdminAudit) || $store.state.userId === item.createUser) && type.type==='ellipsis'"
                       @click.stop>
                     <a-dropdown :placement="'bottomCenter'" :trigger="['click']">
                       <template #overlay>
@@ -69,11 +69,11 @@
                             <span style="color: red">{{ ' ' + $t("common.delete") }}</span>
                           </a-menu-item>
                         </a-menu>
-                        <div class="options">
-                          <!-- <a-icon :type="type"/> -->
-                          <EllipsisOutlined />
-                        </div>
                       </template>
+                      <div class="options">
+                      <!-- <a-icon :type="type"/> -->
+                      <EllipsisOutlined />
+                    </div>
                     </a-dropdown>
                   </span>
               </span>
@@ -150,6 +150,8 @@
 import userService from "@/service/userService";
 import articleService from "@/service/articleService";
 import { EyeOutlined,LikeOutlined,MessageOutlined,EllipsisOutlined,FireOutlined } from '@ant-design/icons-vue';
+import { Modal } from 'ant-design-vue';
+import { nextTick } from 'vue';
 
 export default {
   props: {
@@ -268,14 +270,20 @@ export default {
       this.$confirm({
         centered: true,
         title: this.$t("common.deleteArticleTitle"),
-        onOk: () => {
-          articleService.articleDelete(articleId)
+        onOk:async ()=>{
+          await articleService.articleDelete(articleId)
               .then(() => {
                 this.tempData = this.tempData.filter(article => article.id !== articleId);
               })
               .catch(err => {
                 this.$message.error(err.desc);
               });
+          // return new Promise(async (res) => {
+          //   console.log("关闭")
+          //   Modal.destroyAll();
+          //   await nextTick();
+          //   return res(true)
+          // })
         },
       });
     },

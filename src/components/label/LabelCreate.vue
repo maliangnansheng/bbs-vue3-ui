@@ -15,7 +15,7 @@
     </a-form-item>
     <a-divider style="margin: 10px 0;"></a-divider>
     <a-form-item class="form-item-submit">
-      <a-button type="primary" html-type="submit">{{ $t('common.sureAndAdd') }}</a-button>
+      <a-button type="primary" html-type="submit" @click="handleSubmit">{{ $t('common.sureAndAdd') }}</a-button>
     </a-form-item>
   </a-form>
 </template>
@@ -52,7 +52,7 @@
         //   }
         // },
         rules: {
-          lableId: [{ required: true, message: this.$t('common.pleaseLabel') }],
+          labelName: [{ required: true, message: this.$t('common.pleaseLabel') }],
         },
       }
     },
@@ -64,7 +64,7 @@
         this.$refs.form.validateFields().then(values => {
           const data = {
             "logo": this.labelLogo,
-            "labelName": values.labelName
+            "labelName": this.form.labelName
           };
           if (this.labelLogo) {
             // 更新
@@ -106,6 +106,7 @@
               this.refresh();
             })
             .catch(err => {
+              console.log("错误",err)
               this.$message.error(err.desc);
             });
       },

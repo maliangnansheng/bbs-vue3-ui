@@ -119,7 +119,7 @@ export default {
         data.append("title", this.articleTitle);
         data.append("markdown", this.markdownCode);
         data.append("html", this.htmlCode);
-        data.append("labelIds", values.lableId);
+        data.append("labelIds", this.form.lableId);
         // 地址栏有值（更新文章）才调用
         let articleId = this.$route.params.id;
         if (articleId) {

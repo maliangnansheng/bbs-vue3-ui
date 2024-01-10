@@ -75,7 +75,6 @@
 import LabelCreate from "@/components/label/LabelCreate";
 import labelService from "@/service/labelService";
 import { EllipsisOutlined } from '@ant-design/icons-vue';
-
 export default {
   name: "LabelContent",
 
@@ -117,7 +116,8 @@ export default {
     // 关闭气泡框
     hideLabelVisibleFn(labelId) {
       this.labelAddVisible = false;
-      this.$set(this.labelEditVisible, labelId, false)
+      // $set(this.labelEditVisible, labelId, false)
+      this.labelEditVisible.labelId = false;
     },
 
     // 删除标签
