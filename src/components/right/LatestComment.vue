@@ -7,7 +7,7 @@
         <a-list-item slot="renderItem" slot-scope="item, index" @click="routerArticleDetail(item.articleId, item.id)">
           <a-list-item-meta>
             <template #description>
-              <span slot="description" v-html="item.content"></span>
+              <span slot="description" v-text="item.content"></span>
             </template>
             <!-- <span slot="description" v-html="item.content"></span> -->
             <template #avatar>
