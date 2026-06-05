@@ -4,9 +4,23 @@ const createThemeColorReplacerPlugin = require("./src/config/config");
 const vueConfig = {
     // 开发环境的跨域配置
     devServer: {
-        // proxy: "http://bbs.localhost.com",
+        proxy: {
+            "/api": {
+                target: "http://localhost:7010",
+                ws: true,
+                changeOrigin: true,
+                router: function(req) {
+                    const host = req.headers.host;
+                    if (host) {
+                        const hostname = host.split(":")[0];
+                        return "http://" + hostname + ":7010";
+                    }
+                    return "http://localhost:7010";
+                }
+            }
+        },
         disableHostCheck: true,
-        port: 8082,
+        port: 8081
     },
     // css样式配置（为了实现动态切换主题），教程 https://blog.csdn.net/Joey_Tribiani/article/details/117420207?spm=1001.2014.3001.5501
     css: {
