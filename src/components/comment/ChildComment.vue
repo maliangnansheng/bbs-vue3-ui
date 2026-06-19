@@ -14,7 +14,7 @@
       </template>
       <template #content>
         <p class="comment-content" slot="content">
-        <span v-html="data.content" style="width: 100%"></span>
+        <span v-text="data.content" style="width: 100%"></span>
 <!--        <span class="del" v-if="data.commentUser === $store.state.userId"-->
 <!--              @click="deleteComment(data.id)">{{ $t("common.delete") }}</span>-->
       </p>
