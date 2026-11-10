@@ -97,7 +97,7 @@
 
 ### Android版
 
-<img width="258" height="258" alt="小程序8cm" src="https://gitee.com/maliangnansheng/bbs-springboot/releases/download/v3.0.0-android/NanSing-Forum-3.0.0.apk" />
+[下载南生论坛Android版](https://gitee.com/maliangnansheng/bbs-springboot/releases/download/v3.0.0-android/NanSing-Forum-3.0.0.apk)
 
 ### 桌面应用-Windows
 
