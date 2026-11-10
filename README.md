@@ -178,7 +178,3 @@
 
   完整体验去 **商业版演示系统**：[https://bbs-corp.nansin.top/](https://bbs-corp.nansin.top/)
   
-
-## 桌面应用
-
-![](https://76.nansin.top/logo/zmxt.png)
