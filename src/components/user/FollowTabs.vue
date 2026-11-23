@@ -1,150 +1,128 @@
 <template>
-  <div id="personal-info-display">
-    <a-tabs default-active-key="followed" @change="changeTab" v-model:activeKey="activeKey">
+  <div class="follow-tabs">
+    <a-tabs v-model:active-key="activeKey" @change="onChange">
       <a-tab-pane key="followed">
-        <template #tab>
-          <span slot="tab">
-            {{ $t("common.follow") + ' ' + followedTotal }}
-          </span>
+        <template #tab>{{ $t('common.followed') }} {{ followedTotal }}</template>
+        <CustomEmpty v-if="followed.spinning" />
+        <template v-else>
+          <a-empty v-if="!followed.list.length" description="暂无关注" />
+          <AuthorListCard
+            v-else
+            :data="followed.list"
+            :finish="!followed.loading"
+            :has-next="followed.hasNext"
+            follow-field="toUser"
+            @followed="(i) => toggleLocal('followed', i)"
+          />
         </template>
-        <FollowAuthorsListContent
-            :getBigCow="getBigCow"
-            :finish="finish"
-            :hasNext="hasNext"
-            :data="followData"
-            @refresh="refresh"
-            style="background: #fff;"/>
       </a-tab-pane>
+
       <a-tab-pane key="fan">
-        <template #tab>
-          <span slot="tab">
-            {{ $t("common.fan") + ' ' + fanTotal }}
-          </span>
+        <template #tab>{{ $t('common.followMe') }} {{ fanTotal }}</template>
+        <CustomEmpty v-if="fan.spinning" />
+        <template v-else>
+          <a-empty v-if="!fan.list.length" description="暂无粉丝" />
+          <AuthorListCard
+            v-else
+            :data="fan.list"
+            :finish="!fan.loading"
+            :has-next="fan.hasNext"
+            follow-field="fromUser"
+            @followed="(i) => toggleLocal('fan', i)"
+          />
         </template>
-        <FollowAuthorsListContent
-            :getBigCow="getBigCow"
-            :finish="finish"
-            :hasNext="hasNext"
-            :data="fanData"
-            @refresh="refresh"
-            style="background: #fff;"/>
       </a-tab-pane>
     </a-tabs>
   </div>
 </template>
 
-<script>
-import userService from "@/service/userService";
-import FollowAuthorsListContent from "@/components/user/FollowAuthorsListContent";
+<script setup>
+import { onMounted, reactive, ref, watch } from 'vue'
+import CustomEmpty from '@/components/common/CustomEmpty.vue'
+import AuthorListCard from './AuthorListCard.vue'
+import userApi from '@/api/user'
+import { toastError } from '@/utils/feedback'
 
-export default {
-  name: "",
-  components: {FollowAuthorsListContent},
+const props = defineProps({
+  userId: { type: [String, Number], required: true },
+  followedTotal: { type: Number, default: 0 },
+  fanTotal: { type: Number, default: 0 }
+})
+const activeKey = ref('followed')
 
-  props: {
-    userId: {type: Number, default: 0},
-    // 我关注的人数
-    followedTotal: {type: Number, default: 0},
-    // 我的粉丝数
-    fanTotal: {type: Number, default: 0},
-  },
+const followed = reactive({ list: [], page: 1, hasNext: true, loading: false, spinning: true })
+const fan = reactive({ list: [], page: 1, hasNext: true, loading: false, spinning: true })
 
-  data() {
-    return {
-      // 我关注的人
-      followData: [],
-      // 关注我的人
-      fanData: [],
-      hasNext: true,
-      finish: false,
-      params: {currentPage: 1, pageSize: 10},
-      // 获取我关注的
-      getBigCow: Number(this.userId),
-      // 关注我的
-      getFan: Number,
-      activeKey:'followed',
-    };
-  },
-
-  methods: {
-    // 加载更多（滚动加载）
-    loadMore() {
-      this.params.currentPage++;
-      this.getFollowUsers(this.params, true);
-    },
-
-    // 获取关注用户列表信息
-    getFollowUsers(params, isLoadMore) {
-      if (!isLoadMore) {
-        this.params.currentPage = 1;
-      }
-      this.finish = false;
-      if (this.getBigCow) {
-        params.getBigCow = this.getBigCow
-        // this.$delete(params, 'getFan');
-        params.getFan = undefined;
-      } else {
-        params.getFan = this.getFan
-        // this.$delete(params, 'getBigCow');
-        params.getBigCow = undefined;
-      }
-      userService.getFollowUsers(params)
-          .then(res => {
-            if (isLoadMore) {
-              if (this.getBigCow) {
-                this.followData = this.followData.concat(res.data.list);
-              } else {
-                this.fanData = this.fanData.concat(res.data.list);
-              }
-              this.hasNext = res.data.list.length !== 0;
-            } else {
-              if (this.getBigCow) {
-                this.followData = res.data.list;
-              } else {
-                this.fanData = res.data.list;
-              }
-            }
-            this.spinning = false;
-            this.finish = true;
-          })
-          .catch(err => {
-            this.finish = true;
-            this.$message.error(err.desc);
-          });
-    },
-
-    // 刷新列表
-    refresh() {
-      this.params = {currentPage: 1, pageSize: 10};
-      this.getFollowUsers(this.params);
-      this.$emit("getFollowCount");
-    },
-
-    // tab切换回调
-    changeTab(activeKey) {
-      if (activeKey === 'followed') {
-        this.getBigCow = this.userId;
-        this.getFan = 0;
-        this.getFollowUsers(this.params);
-        this.$emit("getFollowCount");
-      }
-      if (activeKey === 'fan') {
-        this.getFan = this.userId;
-        this.getBigCow = 0;
-        this.getFollowUsers(this.params);
-        this.$emit("getFollowCount");
-      }
-    }
-  },
-
-  mounted() {
-    this.getFollowUsers(this.params);
-    // 监听滚动，做滚动加载
-    this.$utils.scroll.call(this, document.querySelector('#app'));
-  },
+function stateOf(mode) {
+  return mode === 'fan' ? fan : followed
 }
+
+async function fetchList(mode, reset = true) {
+  const state = stateOf(mode)
+  if (!reset && (state.loading || !state.hasNext)) return
+  state.loading = true
+  if (reset) {
+    state.page = 1
+    state.spinning = true
+  }
+  const params = { currentPage: state.page, pageSize: 10 }
+  if (mode === 'fan') {
+    params.getFan = props.userId
+  } else {
+    params.getBigCow = props.userId
+  }
+  try {
+    const res = await userApi.getFollowUsers(params)
+    const rows = res.data.list || []
+    state.list = reset ? rows : state.list.concat(rows)
+    state.hasNext = rows.length > 0
+  } catch (error) {
+    state.hasNext = false
+    toastError(error, '列表加载失败')
+  } finally {
+    state.loading = false
+    state.spinning = false
+  }
+}
+
+function toggleLocal(mode, index) {
+  const item = stateOf(mode).list[index]
+  if (item) item.isFollow = !item.isFollow
+}
+
+function onChange(key) {
+  if (!stateOf(key).list.length) fetchList(key, true)
+}
+
+function loadMore() {
+  return fetchList(activeKey.value, false)
+}
+
+watch(
+  () => props.userId,
+  () => {
+    fetchList('followed', true)
+    fetchList('fan', true)
+  }
+)
+
+defineExpose({ loadMore })
+
+onMounted(() => {
+  fetchList('followed', true)
+  fetchList('fan', true)
+})
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+.follow-tabs {
+  :deep(.ant-tabs-tab) {
+    margin: 0;
+    padding: 12px 16px;
+  }
 
+  :deep(.ant-tabs-nav) {
+    margin-bottom: 16px;
+  }
+}
 </style>

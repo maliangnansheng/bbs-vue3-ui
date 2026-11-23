@@ -1,123 +1,64 @@
 <template>
-  <a-config-provider :locale="lang[$store.state.locale]">
-    <!-- <div v-if="$store.state.width" > -->
-      <router-view/>
-    <!-- </div> -->
+  <a-config-provider :locale="antdLocale" :theme="themeConfig">
+    <router-view />
+    <AuthDialogs />
   </a-config-provider>
 </template>
 
-<script>
-import {mapMutations} from "vuex";
-import userService from "./service/userService";
-import zh_CN from "ant-design-vue/lib/locale-provider/zh_CN";
-import en_US from "ant-design-vue/lib/locale-provider/en_US";
+<script setup>
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import zhCNLocale from 'ant-design-vue/es/locale/zh_CN'
+import enUSLocale from 'ant-design-vue/es/locale/en_US'
+import AuthDialogs from '@/components/auth/AuthDialogs.vue'
+import { useAppStore } from '@/stores/app'
+import { useUserStore } from '@/stores/user'
+import { scrollPageTop } from '@/utils'
 
-export default {
-  data() {
-    return {
-      lang: {
-        zh_CN: zh_CN,
-        en_US: en_US
-      }
-    };
-  },
-  methods: {
-    ...mapMutations(["changeColor"]),
-    // 初始化获取用户权限状态
-    getAccess() {
-      userService.getCurrentUserAccess()
-          .then(res => {
-            /**
-             * @function checkErrorPage 判断当前是否在500页面刷新，如果是，刷新后如果返回{code: 200},则跳转到首页
-             */
-            this.checkErrorPage(res);
-            if (res.code === 0) {
-              this.$store.state.userId = res.data.userId;
-              this.$store.state.isLogin = true;
-              res.data.roles.forEach(data => {
-                // 是超级管理员
-                if (data.grade === 'NS_SUPER_ADMIN_ROLE') {
-                  this.$store.state.isManage = true;
-                }
-              })
-            }
-          })
-          .catch((err) => {
-            // this.$message.error(err.desc);
-          });
-    },
-    // 初始化页面。获取屏幕尺寸以及监听屏幕尺寸
-    initDom() {
-      // 在Vue中this始终指向Vue，但一些其他组件如axios中this为undefined,通过let that = this将this保存在that中，再在函数中使用that均可
-      const that = this;
-      // 利用window.onresize事件监听页面大小变化
-      window.onload = setWidth;
-      window.onresize = setWidth;
+const app = useAppStore()
+const user = useUserStore()
+const route = useRoute()
 
-      function setWidth() {
-        that.$store.state.width = window.innerWidth;
-        that.$store.state.height = window.innerHeight;
-        // 900/1050
-        that.$store.state.collapsed = window.innerWidth < 1000;
-        that.$store.state.collapsedMax = window.innerWidth < 1300;
-      }
-    },
-    checkErrorPage() {
-      // 如果当前是服务器错误（500页面），刷新后自动跳转到首页
-      if (this.$route.path === "/500") {
-        this.$router.push({path: "/"});
-      }
-    },
-    /**
-     * @function setLanguageAndTheme 设置语言和主题色（尝试从localStorage获取，没有就使用默认值）
-     */
-    setLanguageAndTheme() {
-      let navLanguage;
-      if (navigator.language === "zh-CN") {
-        navLanguage = "zh_CN";
-      } else {
-        navLanguage = "en_US";
-      }
-      this.$store.state.locale = localStorage.language ? localStorage.language : navLanguage;
-      this.changeColor(localStorage.themeColor || "#13c2c2");
-    },
-    setIsCarousel() {
-      // 禁用
-      if (Number(window.localStorage.isCarousel) === 0) {
-        this.$store.state.isCarousel = 0;
-      } else {
-        this.$store.state.isCarousel = 1;
-      }
-    }
-  },
-  created() {
-    this.setLanguageAndTheme();
-    this.setIsCarousel();
-  },
-  mounted() {
-    // 初始化dom，获取用户界面宽高，并且添加监听
-    this.initDom();
-    // 获取用户权限，判断用户是否是登录状态
-    this.getAccess();
+// antd 组件语言包
+const antdLocale = computed(() => (app.locale === 'en_US' ? enUSLocale : zhCNLocale))
+
+// 主题色动态切换（ant-design-vue 4.x 使用 Design Token，无需再编译 less）
+const themeConfig = computed(() => ({
+  hashed: false,
+  token: {
+    colorPrimary: app.themeColor,
+    colorLink: app.themeColor,
+    borderRadius: 4
   }
-};
+}))
+
+function handleResize() {
+  app.updateViewport()
+}
+
+// 路由切换后确保滚动容器回到顶部
+watch(
+  () => route.fullPath,
+  () => {
+    scrollPageTop()
+  }
+)
+
+watch(
+  () => app.locale,
+  (value) => {
+    document.documentElement.lang = value === 'en_US' ? 'en' : 'zh-CN'
+  },
+  { immediate: true }
+)
+
+onMounted(() => {
+  app.updateViewport()
+  window.addEventListener('resize', handleResize)
+  user.ensureUser()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: auto;
-  background-color: #f0f2f5;
-}
-
-/* 默认宽度有：width: 1100px;和width: 900px;两种 */
-.ant-input{
-  border-radius: 4px!important;
-}
-</style>

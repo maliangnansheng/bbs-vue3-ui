@@ -1,8 +1,8 @@
 <template>
-  <div id="nan-sheng-value" :style="$store.state.collapsed ? 'padding: 10px 10px 0 10px;' : 'padding: 50px 50px 20px 50px;'">
+  <div id="nan-sheng-value" :style="app.collapsed ? 'padding: 10px 10px 0 10px;' : 'padding: 50px 50px 20px 50px;'">
     <div class="markdown-body">
       <h1>南生值、等级与权限说明</h1>
-      <br/>
+      <br />
       <h2>南生值</h2>
       <p>在南生论坛里我们会使用 <strong>南生值</strong> 来计算一个南友的累计贡献值，累计贡献值的目的是为了更好地回馈优质的用户，同时也借由他们生产的优质内容帮助到更多的南友们。您可以在您的个人主页上看到自己的南生值。</p>
       <h3>南生值的价值</h3>
@@ -16,12 +16,12 @@
       <p style="color: red;">南生值 = 文章的阅读数 / 10 + 获得的点赞数</p>
       <code class="hljs language-!" lang="!">
         1、南生值只计算用户在南生论坛内的文章
-        <br/>
+        <br />
         2、南生值每天凌晨<span style="color: red;">1点</span>更新计算一次
-        <br/>
+        <br />
         3、如果作者删除了自己的文章，相应的南生值会被扣除，已经获得的权限也将被撤销
       </code>
-      <br/>
+      <br />
       <h2>等级与权限</h2>
       <table>
         <thead>
@@ -36,7 +36,7 @@
         <tbody>
         <tr>
           <td>
-            <img style="width: 30px;" src="@/assets/img/level/Lv1.svg" alt=""/>
+            <img style="width: 30px;" src="@/assets/img/level/Lv1.svg" alt="" />
           </td>
           <td>0</td>
           <td>99</td>
@@ -47,7 +47,7 @@
         </tr>
         <tr>
           <td>
-            <img style="width: 30px;" src="@/assets/img/level/Lv2.svg" alt=""/>
+            <img style="width: 30px;" src="@/assets/img/level/Lv2.svg" alt="" />
           </td>
           <td>100</td>
           <td>299</td>
@@ -58,7 +58,7 @@
         </tr>
         <tr>
           <td>
-            <img style="width: 30px;" src="@/assets/img/level/Lv3.svg" alt=""/>
+            <img style="width: 30px;" src="@/assets/img/level/Lv3.svg" alt="" />
           </td>
           <td>300</td>
           <td>599</td>
@@ -69,7 +69,7 @@
         </tr>
         <tr>
           <td>
-            <img style="width: 30px;" src="@/assets/img/level/Lv4.svg" alt=""/>
+            <img style="width: 30px;" src="@/assets/img/level/Lv4.svg" alt="" />
           </td>
           <td>600</td>
           <td>999</td>
@@ -80,7 +80,7 @@
         </tr>
         <tr>
           <td>
-            <img style="width: 30px;" src="@/assets/img/level/Lv5.svg" alt=""/>
+            <img style="width: 30px;" src="@/assets/img/level/Lv5.svg" alt="" />
           </td>
           <td>1000</td>
           <td>1499</td>
@@ -91,7 +91,7 @@
         </tr>
         <tr>
           <td>
-            <img style="width: 30px;" src="@/assets/img/level/Lv6.svg" alt=""/>
+            <img style="width: 30px;" src="@/assets/img/level/Lv6.svg" alt="" />
           </td>
           <td>1500</td>
           <td>2099</td>
@@ -108,10 +108,10 @@
   </div>
 </template>
 
-<script>
-  export default {
-    name: ""
-  }
+<script setup>
+import { useAppStore } from '@/stores/app'
+
+const app = useAppStore()
 </script>
 
 <style scoped>
